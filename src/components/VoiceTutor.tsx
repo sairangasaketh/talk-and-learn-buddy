@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Mic, MicOff, Volume2, Play, Pause } from 'lucide-react';
+import { Mic, MicOff, Volume2, Play, Pause, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { VoiceState, Scenario, ConversationState, TutorResponse } from '@/types/
 import { TutorAvatar } from './TutorAvatar';
 import { VoiceRecorder } from './VoiceRecorder';
 import { ScenarioSelector } from './ScenarioSelector';
+import { ModeSelector } from './ModeSelector';
 
 interface VoiceTutorProps {
   apiKey?: string;
@@ -33,8 +34,27 @@ export const VoiceTutor = ({ apiKey }: VoiceTutorProps) => {
 
   const [showApiKeyInput, setShowApiKeyInput] = useState(!apiKey);
   const [tempApiKey, setTempApiKey] = useState('');
+  const [selectedMode, setSelectedMode] = useState<'chatbot' | 'roleplay' | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  const handleModeSelect = useCallback((mode: 'chatbot' | 'roleplay') => {
+    setSelectedMode(mode);
+    if (mode === 'chatbot') {
+      // Initialize free-flow chatbot mode
+      setConversationState(prev => ({
+        ...prev,
+        scenario: undefined,
+        currentPromptIndex: 0,
+        conversationHistory: [],
+        score: 0,
+        corrections: []
+      }));
+      
+      // Welcome message for chatbot mode
+      speakText("Hi! I'm your AI English tutor. Feel free to ask me anything or just start a conversation. I'm here to help you practice and improve your English!");
+    }
+  }, []);
 
   const handleScenarioSelect = useCallback((scenario: Scenario) => {
     setConversationState(prev => ({
@@ -84,12 +104,32 @@ export const VoiceTutor = ({ apiKey }: VoiceTutorProps) => {
   }, [apiKey, tempApiKey, toast]);
 
   const generateResponse = useCallback(async (userText: string): Promise<TutorResponse> => {
+    // For chatbot mode (free-flow conversation)
+    if (selectedMode === 'chatbot') {
+      const chatbotResponses = [
+        "That's interesting! Can you tell me more about your thoughts on that?",
+        "Great point! How do you feel about this topic?",
+        "I understand. What experiences have you had with this?",
+        "That's a good way to think about it. What would you like to discuss next?",
+        "Excellent! Your English is improving. Let's continue our conversation.",
+        "I love hearing your perspective! What else is on your mind?",
+        "That's fascinating! Can you explain that in a different way?",
+        "Good job expressing yourself! What questions do you have for me?"
+      ];
+      
+      const randomResponse = chatbotResponses[Math.floor(Math.random() * chatbotResponses.length)];
+      return {
+        text: randomResponse,
+        type: 'conversation'
+      };
+    }
+
+    // For roleplay mode (scenario-based)
     if (!conversationState.scenario) {
       return { text: "Please select a scenario first!", type: 'question' };
     }
 
-    // Simulate AI response generation - you would use GPT-4 API here
-    const responses = [
+    const scenarioResponses = [
       "That's great! Can you tell me more about that?",
       "Excellent pronunciation! Let's try another phrase.",
       "Good job! Now let's practice something new.",
@@ -97,13 +137,13 @@ export const VoiceTutor = ({ apiKey }: VoiceTutorProps) => {
       "Perfect! You're doing wonderfully!"
     ];
 
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    const randomResponse = scenarioResponses[Math.floor(Math.random() * scenarioResponses.length)];
     
     return {
       text: randomResponse,
       type: 'encouragement'
     };
-  }, [conversationState.scenario]);
+  }, [conversationState.scenario, selectedMode]);
 
   const handleTranscriptReceived = useCallback(async (transcript: string) => {
     if (!transcript.trim()) return;
@@ -209,9 +249,23 @@ export const VoiceTutor = ({ apiKey }: VoiceTutorProps) => {
           )}
         </div>
 
-        {!conversationState.scenario ? (
-          <ScenarioSelector onScenarioSelect={handleScenarioSelect} />
-        ) : (
+        {!selectedMode ? (
+          <ModeSelector onModeSelect={handleModeSelect} />
+        ) : selectedMode === 'roleplay' && !conversationState.scenario ? (
+          <>
+            <div className="text-center mb-6">
+              <Button 
+                variant="ghost" 
+                onClick={() => setSelectedMode(null)}
+                className="mb-4"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Mode Selection
+              </Button>
+            </div>
+            <ScenarioSelector onScenarioSelect={handleScenarioSelect} />
+          </>
+        ) : (selectedMode === 'chatbot' || conversationState.scenario) ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Tutor Avatar & Status */}
             <Card className="p-6">
@@ -223,11 +277,18 @@ export const VoiceTutor = ({ apiKey }: VoiceTutorProps) => {
               
               <div className="mt-4 text-center">
                 <h3 className="text-xl font-semibold mb-2">
-                  {conversationState.scenario.title}
+                  {selectedMode === 'chatbot' ? 'Free-flow Chatbot' : conversationState.scenario?.title}
                 </h3>
-                <Badge variant="outline">
-                  {conversationState.scenario.difficulty}
-                </Badge>
+                {conversationState.scenario && (
+                  <Badge variant="outline">
+                    {conversationState.scenario.difficulty}
+                  </Badge>
+                )}
+                {selectedMode === 'chatbot' && (
+                  <Badge variant="outline">
+                    Conversation Mode
+                  </Badge>
+                )}
               </div>
 
               {voiceState.response && (
@@ -270,17 +331,26 @@ export const VoiceTutor = ({ apiKey }: VoiceTutorProps) => {
               </div>
             </Card>
           </div>
-        )}
+        ) : null}
 
-        {/* Reset button */}
-        {conversationState.scenario && (
-          <div className="text-center mt-6">
+        {/* Reset buttons */}
+        {(selectedMode === 'chatbot' || conversationState.scenario) && (
+          <div className="text-center mt-6 space-x-4">
             <Button 
               variant="outline"
-              onClick={() => setConversationState(prev => ({ ...prev, scenario: undefined }))}
+              onClick={() => setSelectedMode(null)}
             >
-              Choose Different Scenario
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Mode Selection
             </Button>
+            {selectedMode === 'roleplay' && conversationState.scenario && (
+              <Button 
+                variant="outline"
+                onClick={() => setConversationState(prev => ({ ...prev, scenario: undefined }))}
+              >
+                Choose Different Scenario
+              </Button>
+            )}
           </div>
         )}
       </div>

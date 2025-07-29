@@ -25,7 +25,7 @@ export interface ConversationPrompt {
 
 export interface TutorResponse {
   text: string;
-  type: 'question' | 'feedback' | 'encouragement' | 'correction';
+  type: 'question' | 'feedback' | 'encouragement' | 'correction' | 'conversation';
   audioUrl?: string;
 }
 
