@@ -1,72 +1,80 @@
-Sure! Here's a **simple, human-written README** version — in plain English, no plagiarism risk, and perfect for a local development project:
+# 🗣️ Talk and Learn Buddy
+
+**Talk and Learn Buddy** is a web-based interactive English-speaking practice tool built with React, Tailwind CSS, and Vite. It lets users have voice-based conversations using realistic or browser-generated speech.
 
 ---
 
-## 🗣️ Talk and Learn Buddy
+## 🚀 Live Demo
 
-This is a web app built to help users practice spoken English through voice interactions. It uses tools like React, Tailwind CSS, and Vite for a fast and responsive experience. The original structure was created with help from Lovable.dev.
+🌐 https://talk-and-learn-buddy.vercel.app/ 
 
----
-
-### 💻 Running the Project Locally
-
-To run this project on your computer, make sure Node.js is installed. Then follow these steps:
-
-1. **Clone the repository**
-   Open your terminal and run:
-
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   ```
-
-2. **Move into the project folder**
-
-   ```bash
-   cd your-repo-name
-   ```
-
-3. **Install all required packages**
-
-   ```bash
-   npm install
-   ```
-
-4. **Start the development server**
-
-   ```bash
-   npm run dev
-   ```
-
-Once it starts, open your browser and go to:
-`http://localhost:5173`
 
 ---
 
-### 🧩 What’s Used in This Project
+## ✨ Features
 
-* **React & TypeScript** – for building the user interface
-* **Tailwind CSS** – for styling
-* **shadcn/ui** – for modern and accessible UI components
-* **Vite** – for fast development and hot reloading
-* **ElevenLabs API** – for realistic voice output
-
----
-
-### 📦 Deployment
-
-You can publish this site on platforms like:
-
-* Vercel
-* Netlify
-* GitHub Pages
-  Or through Lovable.dev’s “Publish” feature if you're using their platform.
+- Real-time voice chat interaction
+- Option to use **ElevenLabs voice** or **built-in browser voice**
+- Clean, responsive UI with shadcn/ui
+- Fast development experience with Vite
 
 ---
 
-### 🤝 Contributing
+## 🧰 Tech Stack
 
-If you want to suggest changes or improve the project, feel free to fork the repo, make updates, and create a pull request.
+- React + TypeScript  
+- Vite  
+- Tailwind CSS  
+- shadcn/ui  
+- ElevenLabs API (optional)  
+- Web Speech API (browser fallback)
 
 ---
 
-Let me know if you want this as a `.md` file or want to include screenshots or contribution guidelines.
+## 🛠️ Getting Started Locally
+
+### Prerequisites
+
+- Node.js (v16 to v20)
+- npm
+
+### Setup Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/talk-and-learn-buddy.git
+
+# 2. Move into the project folder
+cd talk-and-learn-buddy
+
+# 3. Install dependencies
+npm install
+
+# 4. Run the development server
+npm run dev
+Then open: http://localhost:5173
+
+🔊 Voice Options
+This app supports two ways to generate spoken responses:
+
+1. ElevenLabs API (Recommended for Natural Voice)
+Create an account at https://www.elevenlabs.io
+
+Go to your Profile > API Keys
+
+Copy your key
+
+Paste the key into the app when prompted
+
+📌 Produces more human-like voice output.
+
+2. Browser Speech Synthesis (Fallback)
+You can also use the built-in browser speech synthesis (Web Speech API).
+Works on most modern browsers — no setup needed.
+
+✅ Works out-of-the-box and is great for testing or offline use.
+
+🤝 Contributing
+Contributions are welcome!
+Fork the repo, create a branch, and open a pull request.
+
